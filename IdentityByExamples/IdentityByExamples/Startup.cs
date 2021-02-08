@@ -47,9 +47,12 @@ namespace IdentityByExamples
                 opt.Lockout.MaxFailedAccessAttempts = 3;
             })
              .AddEntityFrameworkStores<ApplicationContext>()
+
+   
              .AddDefaultTokenProviders()
              .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation")
              .AddPasswordValidator<CustomPasswordValidator<User>>();
+
 
             services.Configure<DataProtectionTokenProviderOptions>(opt =>
                opt.TokenLifespan = TimeSpan.FromHours(2));
