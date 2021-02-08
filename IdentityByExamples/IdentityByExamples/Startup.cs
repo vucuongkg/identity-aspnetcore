@@ -48,9 +48,12 @@ namespace IdentityByExamples
                 opt.Lockout.MaxFailedAccessAttempts = 3;
             })
              .AddEntityFrameworkStores<ApplicationContext>()
+
+   
              .AddDefaultTokenProviders()
              .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation")
              .AddPasswordValidator<CustomPasswordValidator<User>>();
+
 
             services.Configure<DataProtectionTokenProviderOptions>(opt =>
                opt.TokenLifespan = TimeSpan.FromHours(2));
@@ -58,7 +61,8 @@ namespace IdentityByExamples
             services.Configure<EmailConfirmationTokenProviderOptions>(opt =>
                 opt.TokenLifespan = TimeSpan.FromDays(3));
 
-            services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
+			services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
+
 
             services.AddAuthentication()
                 .AddGoogle("google", opt =>
@@ -71,6 +75,7 @@ namespace IdentityByExamples
                 });
 
             services.AddAutoMapper(typeof(Startup));
+
 
             var emailConfig = Configuration
                 .GetSection("EmailConfiguration")
