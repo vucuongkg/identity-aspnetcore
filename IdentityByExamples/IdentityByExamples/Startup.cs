@@ -1,16 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using EmailService;
+using IdentityByExamples.CustomTokenProviders;
+using IdentityByExamples.CustomValidators;
 using IdentityByExamples.Factory;
 using IdentityByExamples.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,16 +37,32 @@ namespace IdentityByExamples
                 opt.Password.RequireUppercase = false;
 
                 opt.User.RequireUniqueEmail = true;
+
+                opt.SignIn.RequireConfirmedEmail = true;
+
+                opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
+
+                opt.Lockout.AllowedForNewUsers = true;
+                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
+                opt.Lockout.MaxFailedAccessAttempts = 3;
             })
              .AddEntityFrameworkStores<ApplicationContext>()
-             .AddDefaultTokenProviders();
+
+   
+             .AddDefaultTokenProviders()
+             .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation")
+             .AddPasswordValidator<CustomPasswordValidator<User>>();
+
 
             services.Configure<DataProtectionTokenProviderOptions>(opt =>
                opt.TokenLifespan = TimeSpan.FromHours(2));
 
-            services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
+            services.Configure<EmailConfirmationTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromDays(3));
 
-            services.AddAutoMapper(typeof(Startup));
+			services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
+
+			services.AddAutoMapper(typeof(Startup));
 
             var emailConfig = Configuration
                 .GetSection("EmailConfiguration")
